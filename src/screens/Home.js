@@ -1,55 +1,52 @@
-import React, {Component} from 'react';
-import {StyleSheet, View, Text, Image, FlatList} from 'react-native';
+import React, {Component, useEffect, useState} from 'react';
+import {
+  StyleSheet,
+  View,
+  Text,
+  Image,
+  FlatList,
+  ActivityIndicator,
+  Alert,
+} from 'react-native';
 import {Card, FAB} from 'react-native-paper';
+import {useSelector, useDispatch} from 'react-redux';
 
 const Home = ({navigation}) => {
-  const data = [
-    {
-      id: '1',
-      name: 'Tiger Nixon',
-      salary: '320800',
-      age: '61',
-      email: 'abcd@gmail.com',
-      phone: '1234567',
-      picture:
-        'https://images.unsplash.com/photo-1552915170-73c2330ae617?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=500&q=60',
-    },
-    {
-      id: '2',
-      name: 'Garrett Winters',
-      salary: '170750',
-      age: '63',
-      email: 'abc@gmail.com',
-      phone: '123456',
-      picture:
-        'https://images.unsplash.com/photo-1561826693-1246ed6cc0ef?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=500&q=60',
-    },
-    {
-      id: '3',
-      name: 'Ashton Cox',
-      salary: '86000',
-      age: '66',
-      email: 'abc@gmail.com',
-      phone: '123456',
-      picture:
-        'https://images.unsplash.com/photo-1569466896818-335b1bedfcce?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=500&q=60',
-    },
-    {
-      id: '4',
-      name: 'Cedric Kelly',
-      salary: '433060',
-      age: '22',
-      email: 'abc@gmail.com',
-      phone: '123456',
-      picture:
-        'https://images.unsplash.com/photo-1551712702-4b7335dd8706?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=500&q=60',
-    },
-  ];
+  // const [data, setData] = useState([]);
+  // const [loading, setLoading] = useState(0);
+  const {data, loading} = useSelector(state => {
+    return state;
+  });
+  const dispatch = useDispatch();
+  const fetchData = () => {
+    fetch('http://localhost:1337/api/employee/query', {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        query: {isDelete: false},
+      }),
+    })
+      .then(res => res.json())
+      .then(res => {
+        dispatch({type: 'ADD_DATA', payload: res.data});
+        dispatch({type: 'SET_LOADING', payload: false});
+      })
+      .catch(eer => {
+        Alert.alert('Something went wrong');
+      });
+  };
+  useEffect(() => {
+    fetchData();
+  }, []);
+
   const renderItemData = item => {
     return (
       <Card
         style={styles.myCard}
-        key={item.id}
+        key={item._id}
         onPress={() => navigation.navigate('Profile', item)}>
         <View style={styles.cardView}>
           <Image
@@ -59,7 +56,7 @@ const Home = ({navigation}) => {
             }}></Image>
           <View style={styles.ml5}>
             <Text style={styles.headerText}>{item.name}</Text>
-            <Text style={styles.headerText}>Age: {item.age}</Text>
+            <Text style={styles.headerText}>Postion: {item.position}</Text>
           </View>
         </View>
       </Card>
@@ -67,7 +64,19 @@ const Home = ({navigation}) => {
   };
   return (
     <View style={{flex: 1}}>
+      {/* {loading ? (
+        <ActivityIndicator size="large" color="#0000ff" />
+      ) : (
+        <FlatList
+          // onRefresh={() => fetchData()}
+          data={data}
+          renderItem={item => {
+            return renderItemData(item.item);
+          }}></FlatList>
+      )} */}
       <FlatList
+        refreshing={false}
+        onRefresh={() => fetchData()}
         data={data}
         renderItem={item => {
           return renderItemData(item.item);

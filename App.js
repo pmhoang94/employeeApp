@@ -13,6 +13,11 @@ import CreateEmployee from './src/screens/CreateEmployee';
 import Profile from './src/screens/Profile';
 import {NavigationContainer} from '@react-navigation/native';
 import {createStackNavigator} from '@react-navigation/stack';
+import {createStore} from 'redux';
+import {Provider} from 'react-redux';
+import {reducer} from './src/reducers/reducer';
+
+const store = createStore();
 
 const App = () => {
   const Stack = createStackNavigator();
@@ -48,9 +53,11 @@ const App = () => {
 
 export default () => {
   return (
-    <NavigationContainer>
-      <App />
-    </NavigationContainer>
+    <Provider store={store}>
+      <NavigationContainer>
+        <App />
+      </NavigationContainer>
+    </Provider>
   );
 };
 
